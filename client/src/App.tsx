@@ -7,6 +7,7 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { AptosClient } from "aptos";
+import { debug } from "console";
 
 type Task = {
   address: string;
@@ -19,7 +20,7 @@ export const NODE_URL = "https://fullnode.devnet.aptoslabs.com";
 export const client = new AptosClient(NODE_URL);
 // change this to be your module account address
 export const moduleAddress =
-  "0xe1bee0b44781baf61a22319f078932b8a235cadae0e301f20c7e00d3e360b55e";
+  "0xed37946e4e32d1903d4ed2a8f97f0415565fc26fc2a902ca7369c39c6aa6903d";
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -67,22 +68,28 @@ function App() {
   };
 
   const addNewList = async () => {
-    if (!account) return [];
+    if (!account) {
+      return [];
+    }
     setTransactionInProgress(true);
     // build a transaction payload to be submited
     const payload = {
       type: "entry_function_payload",
       function: `${moduleAddress}::todolist::create_list`,
       type_arguments: [],
+      function_arguments: [],
+      functionArguments: [],
       arguments: [],
     };
     try {
       // sign and submit transaction to chain
-      const response = await signAndSubmitTransaction(payload);
+      const response = await signAndSubmitTransaction(payload, payload);
+      console.log(response);
       // wait for transaction
       await client.waitForTransaction(response.hash);
       setAccountHasList(true);
     } catch (error: any) {
+      debugger;
       setAccountHasList(false);
     } finally {
       setTransactionInProgress(false);
